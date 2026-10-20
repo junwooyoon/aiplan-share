@@ -39,15 +39,13 @@ h1 { font-size: 20px; margin: 0; text-wrap: balance; }
 .opts { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; font-size: 12.5px; color: var(--muted); }
 .see { margin-top: 8px; display: block; font: 500 12.5px var(--sans); color: var(--accent); background: var(--panel); border: 1px solid var(--accent); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
 .see.on { background: var(--accent); color: var(--panel); }
-.see:focus-visible, .tools button:focus-visible { outline: 2px solid var(--user); outline-offset: 2px; }
+.see:focus-visible { outline: 2px solid var(--user); outline-offset: 2px; }
 .divider { display: flex; align-items: center; gap: 8px; color: var(--muted); font: 500 12px var(--mono); }
 .divider::before, .divider::after { content: ''; flex: 1; border-top: 1px dashed var(--line); }
 .board { display: flex; flex-direction: column; overflow: hidden; }
 .bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
 .bar b { font-size: 15px; }
 .bar .meta { font-family: var(--mono); }
-.tools { display: flex; gap: 6px; }
-.tools button { font: 500 13px var(--sans); color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
 .stage { flex: 1; min-height: 260px; position: relative; overflow: hidden; background: #f4f6fa; cursor: grab; touch-action: none; }
 .stage svg { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
 .sched { display: flex; gap: 6px; padding: 8px 10px 10px; border-top: 1px solid var(--line); overflow-x: auto; }
@@ -62,7 +60,7 @@ h1 { font-size: 20px; margin: 0; text-wrap: balance; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 <div class="wrap">
-  <header><h1>시스템 개선과 교수님 미팅 준비</h1><span class="meta">읽기 전용 공유, 10/20 22:38 기준. 대화와 그때그때의 다이어그램</span></header>
+  <header><h1>시스템 개선과 교수님 미팅 준비</h1><span class="meta">읽기 전용 공유, 10/20 22:40 기준. 대화와 그때그때의 다이어그램</span></header>
   <div class="cols">
     <section class="chat" aria-label="대화"><div class="msg ai">안녕하세요. 같이 계획을 세워 봐요. 아래 세 가지를 알려 주시면 오른쪽에 다이어그램으로 그려 드릴게요.<br>1. <b>목표</b>: 무엇을 언제까지 이루려고 하나요?<br>2. <b>지금 상황</b>: 어디까지 했고 무엇이 남았나요?<br>3. <b>함께하는 사람</b>: 누가 어떤 역할로 참여하나요?<br>한 번에 다 말하지 않아도 괜찮아요. 먼저 <b>목표</b>부터 알려 주세요.<br>예: &quot;10월 20일 교수님 미팅에서 파일럿 결과를 발표해야 해&quot;</div>
 <div class="msg user">나는 SketchLab 석사과정 윤준우야. 오늘 10월 20일 화요일 오전에 교수님 미팅이 방금 끝났어. 다음 주 화요일 10월 27일 교수님 미팅까지 일주일 계획을 세우고 싶어. 다음 미팅에서는 개선된 내 시스템을 소개하고 클레임과 실험 논의를 할 거야. 이번 주는 꽤 빡빡하게 살 건데, 토요일은 내 일정이 있어서 일을 못 하고 일요일에는 일할 수 있어.</div>
@@ -85,8 +83,7 @@ h1 { font-size: 20px; margin: 0; text-wrap: balance; }
 <div class="msg user pick">응, 이렇게 바꿔 줘</div>
 <div class="msg ai sys">계획에 반영했어요.<button type="button" class="see" data-d="1" id="see-1-2">다이어그램 2 보기</button></div></section>
     <section class="board" aria-label="다이어그램">
-      <div class="bar"><div><b id="dtitle"></b> <span class="meta" id="dmeta"></span></div>
-        <div class="tools"><button type="button" id="zout" aria-label="축소">−</button><button type="button" id="zin" aria-label="확대">+</button><button type="button" id="zfit">맞춤</button></div></div>
+      <div class="bar"><div><b id="dtitle"></b> <span class="meta" id="dmeta"></span></div></div>
       <div class="stage" id="stage"></div>
       <div class="sched" id="sched"></div>
     </section>
@@ -115,10 +112,7 @@ function show(i) {
   fit();
 }
 document.querySelector('.chat').addEventListener('click', ev => { const b = ev.target.closest('.see'); if (b) show(Number(b.dataset.d)); });
-document.getElementById('zfit').onclick = fit;
 const zoom = (f, px, py) => { const r = stage.getBoundingClientRect(); px ??= r.width / 2; py ??= r.height / 2; const k = Math.max(0.1, Math.min(4, view.k * f)); view.x = px - (px - view.x) * (k / view.k); view.y = py - (py - view.y) * (k / view.k); view.k = k; apply(); };
-document.getElementById('zin').onclick = () => zoom(1.25);
-document.getElementById('zout').onclick = () => zoom(0.8);
 stage.addEventListener('wheel', ev => { ev.preventDefault(); const r = stage.getBoundingClientRect(); if (ev.ctrlKey || ev.metaKey) zoom(Math.exp(-ev.deltaY * 0.01), ev.clientX - r.left, ev.clientY - r.top); else { view.x -= ev.deltaX; view.y -= ev.deltaY; apply(); } }, { passive: false });
 let drag = null;
 stage.addEventListener('pointerdown', ev => { drag = { x: ev.clientX, y: ev.clientY, vx: view.x, vy: view.y }; stage.setPointerCapture(ev.pointerId); });
